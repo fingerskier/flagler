@@ -68,11 +68,13 @@ export function updateEnemy(scene, enemy, time, delta) {
     fireEnemyBullet(scene, enemy, mode);
   }
 
-  // Remove if off screen
-  const { width, height } = scene.scale;
-  if (enemy.y > height + 50 || enemy.y < -50 || enemy.x > width + 50 || enemy.x < -50) {
-    enemy.setActive(false).setVisible(false);
-    enemy.body.enable = false;
+  // Remove if off screen (grace period lets enemies enter from off-screen spawn points)
+  if (enemy.elapsed > 3) {
+    const { width, height } = scene.scale;
+    if (enemy.y > height + 50 || enemy.y < -50 || enemy.x > width + 50 || enemy.x < -50) {
+      enemy.setActive(false).setVisible(false);
+      enemy.body.enable = false;
+    }
   }
 }
 

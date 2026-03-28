@@ -19,6 +19,7 @@ export class GameScene extends Phaser.Scene {
     this.wave = 1;
     this.travelMode = 'vertical'; // 'vertical' or 'horizontal'
     this.waveActive = false;
+    this.waveSpawnsRemaining = 0;
     this.waveSpawnQueue = [];
     this.waveTimer = 0;
     this.transitioning = false;
@@ -120,6 +121,7 @@ export class GameScene extends Phaser.Scene {
 
   spawnWave(waveDef) {
     this.waveActive = true;
+    this.waveSpawnsRemaining = waveDef.spawns.length;
     const { width, height } = this.scale;
 
     // Show wave text
@@ -148,6 +150,7 @@ export class GameScene extends Phaser.Scene {
         const x = spawn.x * width;
         const y = spawn.y * height;
         spawnEnemy(this, spawn.type, x, y);
+        this.waveSpawnsRemaining--;
       });
     }
   }
@@ -360,10 +363,10 @@ export class GameScene extends Phaser.Scene {
     // Scrolling starfield
     this.updateStars(delta);
 
-    // Check wave completion
-    if (this.waveActive) {
+    // Check wave completion - only after all enemies have spawned
+    if (this.waveActive && this.waveSpawnsRemaining <= 0) {
       const activeEnemies = this.enemies.countActive();
-      if (activeEnemies === 0 && time > 2000) {
+      if (activeEnemies === 0) {
         this.waveActive = false;
         this.wave++;
         this.updateHUD();
